@@ -113,8 +113,8 @@ function keyPressed() {
     if (tapIntervals.length > 1){
       tapIntervals.push(frameTime);
       
-      // Reset counter if it has been longer than 2 seconds
-      if (tapIntervals[tapIntervals.length-1] - tapIntervals[tapIntervals.length-2] > 2) {
+      // Reset counter if it has been longer than 5 seconds
+      if (tapIntervals[tapIntervals.length-1] - tapIntervals[tapIntervals.length-2] > 5) {
         tapIntervals = [];
       } else {
         // Find the BPM
