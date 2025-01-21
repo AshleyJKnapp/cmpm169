@@ -79,31 +79,6 @@ function draw() {
 }
 
 // ------ Helpers ------
-// Key Press Handling
-function keyPressed() {
-  // if reset key is pressed
-  if (key === 'r') {
-    tapBPM = defaultBPM;
-    tapIntervals = [];
-  } else {
-    // If more than 2 taps have been recorded
-    if (tapIntervals.length > 1){
-      tapIntervals.push(frameTime);
-      
-      // Reset counter if it has been longer than 5 seconds
-      if (tapIntervals[tapIntervals.length-1] - tapIntervals[tapIntervals.length-2] > 5) {
-        tapIntervals = [];
-      } else {
-        // Find the BPM
-        tapBPM = findWeighted();
-        console.log("tapped BPM: " + tapBPM);
-      }
-    } else {
-      tapIntervals.push(frameTime);
-    }
-  }
-}
-
 // Calculates DeltaTime for time based animation
 function findDeltaTime(){
   const now = performance.now();
@@ -111,6 +86,39 @@ function findDeltaTime(){
   lastFrame = now;
   
   return frameTime += dTime * 0.001; // Elapsed time in seconds
+}
+
+// Key Press Handling
+function keyPressed() {
+  // if reset key is pressed
+  if (key === 'r') {
+    tapBPM = defaultBPM;
+    tapIntervals = [];
+  } else {
+    handleTappingBPM();
+  }
+}
+
+function touchStarted() {
+  handleTappingBPM();
+}
+
+function handleTappingBPM() {
+  // If more than 2 taps have been recorded
+  if (tapIntervals.length > 1){
+    tapIntervals.push(frameTime);
+    
+    // Reset counter if it has been longer than 5 seconds
+    if (tapIntervals[tapIntervals.length-1] - tapIntervals[tapIntervals.length-2] > 5) {
+      tapIntervals = [];
+    } else {
+      // Find the BPM
+      tapBPM = findWeighted();
+      console.log("tapped BPM: " + tapBPM);
+    }
+  } else {
+    tapIntervals.push(frameTime);
+  }
 }
 
 // Finds BPM with normal averages
