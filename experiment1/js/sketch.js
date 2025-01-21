@@ -69,36 +69,13 @@ function draw() {
   
   // Draw Visualizer
   let scalar = 0.3;
-  drawWaveforms(-2, waveBPM, canvasH/2);
+  // drawWaveforms(1.2, -waveBPM/2, canvasH/4);
+  drawWaveforms(1.1, -waveBPM/2, canvasH/2);
+  // drawWaveforms(1.2, -waveBPM/2, canvasH - (canvasH/4));
   
   image(personImg, (canvasW/2)-15, (canvasH/2)+100);
   
   drawCircleVisual(canvasH/2, scalar, waveBPM);
-}
-
-
-// (scale, vertOffset)
-function drawCircleVisual(vertOffset, scalar, bpm){
-  // Clipping Circle
-  stroke(255, 130, 0);
-  fill(0);
-  
-  let pulse = (25 * scalar) * cos(frameTime * bpm * 4) + (500 * scalar);
-  
-  circle(canvasW/2, vertOffset, pulse);
-  
-  // Clipping mask start
-  push();
-  
-  beginClip();
-  circle(canvasW/2, vertOffset, pulse);
-  endClip();
-  
-  background(0);
-  drawWaveforms(scalar, bpm, vertOffset);
-  
-  // Clipping mask end
-  pop();
 }
 
 // ------ Helpers ------
@@ -162,10 +139,32 @@ function findWeighted() {
   return round(60 / avg);
 }
 
+// Draws the circle visual with waves inside
+function drawCircleVisual(vertOffset, scalar, bpm){
+  // Clipping Circle
+  stroke(255, 130, 0);
+  fill(0);
+  
+  let pulse = (25 * scalar) * cos(frameTime * bpm * 4) + (500 * scalar);
+  
+  circle(canvasW/2, vertOffset, pulse);
+  
+  // Clipping mask start
+  push();
+  
+  beginClip();
+  circle(canvasW/2, vertOffset, pulse);
+  endClip();
+  
+  background(0);
+  drawWaveforms(scalar, bpm, vertOffset);
+  
+  // Clipping mask end
+  pop();
+}
+
 // This function draws the group of waves with specified parameters
 function drawWaveforms(scalar, bpm, vertOffset){
-  
-  
   // Adjustable variables
   // let scalar = 0.3;
   //let vertOffset = ;
