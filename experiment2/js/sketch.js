@@ -2,33 +2,34 @@
 // Author: Ashley Knapp
 // Date: 1-27-25
 
-// Constants - User-servicable parts
+// ----- Constants -----
 const forwardSize = 10;
 const dotSize = 5;
 const sizeInc = 1;
-const drawSize = 1;
-// Would be const but I cant use PI or HALF_PI here
-let leftSize = 3.14/2;
-let rightSize = 3.14/2;
+const drawSize = 1.5;
+// Plant Type consts in plant.js
 
-// Globals
-let bale = []; // Bale is the word for a gathering of turtles
-let baleGrammars = [];
-let canvasContainer;
+// ----- Globals -----
 var centerHorz, centerVert;
+let canvasContainer;
+// Drawing Vars
+let bale = []; // Bale is the word for a gathering of turtles
 let savedX = [];
 let savedY = [];
 let savedA = [];
+let currentType = type1;
+let turnSize;
+// Delta Time Variables
+let lastFrame;
+let frameTime;
+let dTime;
+let shimpArr = [];
 
-// let sentence = "FCR.FCLLL.FCRRR"
-// let sentence = "FCRFCLLL FCRFCLLL FCRFCLLL FCRFCLLL FCRFCLLL"
-// let sentence = "FCR.FCLL.F.FCRR.FE"
-let sentence = "F[CRF]L[CFL]"
-
-const rule = {
-  // "G": "[]",
-  "F": "F[LF]F.C[RF]",
-  // "]": "F[LF]FC.[RF]",
+function preload(){
+  // Preload Images
+  shrimp1 = loadImage('./assets/shirmlp.png');
+  shrimp2 = loadImage('./assets/shrimp-flat-color-png.webp');
+  shrimp3 = loadImage('./assets/ugly ass shrimp.png');
 }
 
 function resizeScreen() {
@@ -52,202 +53,135 @@ function setup() {
   });
   resizeScreen();
 
+  // ------------------------
+
   // Set the rotation constants
-  // leftSize = HALF_PI/2.5;
-  // rightSize = HALF_PI/2.5;
-  leftSize = HALF_PI/4;
-  rightSize = HALF_PI/4;
+  type1["angle"] = HALF_PI/4;
+  type2["angle"] = HALF_PI/4;
+  type3["angle"] = HALF_PI/4;
 
-  // -----------------------------
-  background(220);    
+  // Set up delta time
+  lastFrame = performance.now(); // returned in milliseconds
+  frameTime = 0;
 
-  // make a turtle with some variations
-  // let koopa = new Turtle(centerHorz, centerVert+200);
-  // koopa.setSize(drawSize);
-  // koopa.setColor(color(5,10,50));
-  // bale.push(koopa);
-  // baleGrammars.push(sentence);
+  // Scale and initiate images
+  imageMode(CENTER);
+  shrimp1.resize(0.2 * shrimp1.width, 0.2 * shrimp1.height);
+  shrimp2.resize(0.2 * shrimp2.width, 0.2 * shrimp2.height);
+  shrimp3.resize(0.15 * shrimp3.width, 0.15 * shrimp3.height);
   
-  // for (let i = 0; i < sentence.length; i++) {
-  //   let instruction = sentence.charAt(i);
-  //   handleInstruction(instruction, koopa);
-  // }
+  // Shrimp1
+  let liveShrimp = new BouncingObj(shrimp1, centerHorz, centerVert, 50, canvasContainer.width()-50, 2);
+  shimpArr.push(liveShrimp);
 
-  // console.log(koopa.drawnObjs);
-  // koopa.redraw();
+  // Shrimp2
+  // shrimp1.resize(0.2 * shrimp1.width, 0.2 * shrimp1.height);
+  let liveShrimp2 = new BouncingObj(shrimp2, centerHorz, centerVert-200, 50, canvasContainer.width()-50, 1.25);
+  shimpArr.push(liveShrimp2);
 
-  // // black line
-  // koopa.setColor(color(0, 0, 0));
-  // koopa.moveForward(50);
+  // Shrimp3
+  let liveShrimp3 = new BouncingObj(shrimp3, centerHorz, centerVert+150, 50, canvasContainer.width()-50, .78);
+  shimpArr.push(liveShrimp3);
 
-  // // purple dot
-  // koopa.setColor(color(180, 90, 190));
-  // koopa.drawDot(20);
-
-  // // green line
-  // koopa.turnRight(PI/2);
-  // koopa.setColor(color(0, 150, 0));
-  // koopa.setSize(10);
-  // koopa.moveForward(50);
-
-  fakePress();
-
+  // Debugging function
+  // autoPress();
 }
 
 function draw() {
-  // var newClr = (second()*20) %360;
-  background(160, 220, 235);
+  // Delta Time Calculation
+  findDeltaTime();
 
-  // let testTurt = new Turtle(centerHorz, centerVert+300);
-  // testTurt.setSize(drawSize);
-  // testTurt.setColor(color(5,10,50));
+  // Gradient from this sketch found on Google
+  // https://editor.p5js.org/evebdn/sketches/O9G35ueZv
+  c1 = color(0, 69, 191);
+  c2 = color(63, 191, 191);
   
+  for(let y = 0; y < height; y++) {
+    n = map(y, 0, height, 0, 1);
+    let newc = lerpColor(c2, c1, n);
+    stroke(newc);
+    line(0, y, width, y);
+  }
 
-  // // throw("Emergency Halt");
-  // if (frameCount <= 1){
-  //   for (let i = 0; i <= 3; i++) {
-  //     var nextSentence = "";
-  //     if (sentence.length > 100000) {
-  //       // console.log("breaking");
-  //       break;}
-  //     for (let j = 0; j < sentence.length; j++) {
-  //       let instruction = sentence.charAt(j);
-        
-  //       // if F push the rule, otherwise, push the current instruction
-  //       nextSentence += rule[instruction] || instruction;
-  //     }
-  //     sentence = nextSentence;
-  //   }
-  //   console.log("SentenceLength: "+sentence.length);
+  // Plain Background
+  // background(160, 220, 235);
 
-  // }
-  
+  // Draw "sand"
+  fill(240, 200, 140);
+  rect(0, canvasContainer.height()-(centerVert/3), canvasContainer.width(), canvasContainer.height());
+
+  // Draw animated shrimp (animated with deltaTime)
+  for (let i = 0; i < shimpArr.length; i++) {
+    shimpArr[i].updateMovement(frameTime);
+  }
+
   // Redraw everything previously drawn
   for (let i = 0; i < bale.length; i++) {
       let plant = bale[i];
       plant.turtle.redraw();
       plant.grow();
   }
-  // console.log(sentence);
+}
+
+// --------------------------------------------------------------
+// ----- TIME -----
+function findDeltaTime(){
+  const now = performance.now();
+  dTime = (now - lastFrame);
+  lastFrame = now;
+  
+  return frameTime += dTime * 0.001; // Elapsed time in seconds
+}
+
+// ----- INPUTS -----
+function keyPressed() {
+  if (key === '1') {
+    currentType = type1;
+    turnSize = currentType.angle;
+  }
+
+  if (key === '2') {
+    currentType = type2;
+    turnSize = currentType.angle;
+  }
+
+  if (key === '3') {
+    currentType = type3;
+    turnSize = currentType.angle;
+  }
+
+  if (key === 'c') {
+    clearPlants();
+  }
 }
 
 // mousePressed() function is called once after every time a mouse button is pressed
 function mousePressed() {
   // code to run when mouse is pressed
-  console.log("mouse pressed");
-  let tempTurt = new Plant(mouseX, mouseY, sentence, rule, 1);
+  turnSize = currentType.angle;
+  let tempTurt = new Plant(mouseX, mouseY, currentType.sentence, currentType.rule, currentType.drawCycles, currentType.growCycles);
   bale.push(tempTurt);
-  // tempTurt.drawPlant();
-  // tempTurt.drawPlant();
 }
 
-function fakePress() {
-  // let tempTurt = new Plant(centerHorz, centerVert+200, sentence, rule, 1);
-  // bale.push(tempTurt);
+// Draws a plant in the middle of the screen
+// Used for debugging so you dont have to click every time.
+function autoPress() {
+  currentType = type3;
+  turnSize = currentType.angle;
+  let tempTurt = new Plant(centerHorz, centerVert+200, currentType.sentence, currentType.rule, currentType.drawCycles, currentType.growCycles);
+  bale.push(tempTurt);
 }
 
-class Plant {
-  constructor(startX, startY, sentence, rule, maxCycles) {
-    this.sentence = sentence;
-    // this.nextSentence;
-    this.rule = rule;
-    this.cycle = 0;
-    this.maxCycle = maxCycles;
-
-    this.turtle = new Turtle(startX, startY)
-    this.turtle.setSize(drawSize);
-    this.turtle.setColor(color(5,10,50));
-    // console.log("POOP! "+this.turtle.angle);
-    this.drawPlant();
-    // this.drawPlant();
-  }
-
-  grow() {
-    if (this.cycle < this.maxCycle) {
-      this.cycle++
-      for (let j = 0; j < this.sentence.length; j++) {
-        let instruction = this.sentence.charAt(j);
-        // console.log("instruction: "+instruction);
-        handleInstruction(instruction, this.turtle);
-      }
-    }
-  }
-
-  drawPlant() {
-    console.log("rawing)");
-
-    console.log("POOP! "+this.turtle.sentence);
-
-    // if (this.cycle < this.maxCycle){
-    //   this.cycle++
-    //   this.drawPlant();
-    // }
-    
-    // let testTurt = new Turtle(centerHorz, centerVert+300);
-    // testTurt.setSize(drawSize);
-    // testTurt.setColor(color(5,10,50));
-    // for (let i = 0; i < this.sentence.length; i++) {
-    //   let instruction = this.sentence.charAt(i);
-    //   // console.log("instruction: "+instruction);
-    //   handleInstruction(instruction, this.turtle);
-    // }
-
-    // throw("Emergency Halt");
-    // console.log(frameCount < 1000);
-    // if (frameCount < 100){ // stop just in case?
-      for (let i = 0; i <= 3; i++) {
-        let nextSentence = "";
-        // if (this.sentence.length > 100000) { // also stop just in case
-        //   // console.log("breaking");
-        //   break;}
-        for (let j = 0; j < this.sentence.length; j++) {
-          let instruction = this.sentence.charAt(j);
-          
-          // if F push the rule, otherwise, push the current instruction
-          nextSentence += this.rule[instruction] || instruction;
-        }
-        this.sentence = nextSentence;
-      }
-      // console.log("SentenceLength: "+sentence.length);
-      // }
-    }
-
-
+// Erase all of the drawn plants
+function clearPlants() {
+  bale = [];
 }
+
+// ----- HELPERS -----
 
 function handleInstruction(cmd, turt){
   // Move Forward
   if (cmd === "F") {
-    turt.moveForward(forwardSize);
-  }
-
-  // Move Forward 2
-  if (cmd === "G") {
-    turt.moveForward(forwardSize);
-  }
-  
-  // Spawn a new turtle
-  if (cmd === "1") {
-    let babyTurt = new Turtle(turt.x, turt.y);
-    babyTurt.setColor(turt.getColor());
-    babyTurt.setSize(turt.getSize());
-    babyTurt.turnRight(rightSize);
-    bale.push(babyTurt);
-    // baleGrammars.push("E");
-  }
-  // new turt facing left
-  if (cmd === "2") {
-    let babyTurt = new Turtle(turt.x, turt.y);
-    babyTurt.setColor(turt.getColor());
-    babyTurt.setSize(turt.getSize());
-    babyTurt.turnLeft(leftSize);
-    bale.push(babyTurt);
-    // baleGrammars.push("E");
-  }
-
-  // turn180and move forward
-  if (cmd === "8") {
-    turt.turnLeft(PI);
     turt.moveForward(forwardSize);
   }
 
@@ -260,51 +194,38 @@ function handleInstruction(cmd, turt){
 
   // go back to saved position
   if (cmd === "]") {
-    // turt.x = savedX;
-    // turt.y = savedY;
-    // turt.angle = savedA;
-
     turt.x = savedX.pop();
     turt.y = savedY.pop();
     turt.angle = savedA.pop();
-
-    // turt.x = centerHorz;
-    // turt.y = centerVert+200;
-    // turt.angle = 0;
   }
 
   // Draw Dot
   if (cmd === ".") {
-    // console.log("DRWING DOT");
     turt.drawDot(dotSize);
   }
   
   // Turn Left
-  if (cmd === "L") {
-    turt.turnLeft(leftSize);
+  if (cmd === "+") {
+    turt.turnLeft(turnSize);
   }
   
   // Turn Right
-  if (cmd === "R") {
-    turt.turnRight(rightSize);
+  if (cmd === "-") {
+    turt.turnRight(turnSize);
   }
   
   // Decrement Size
-  if (cmd === "-") {
+  if (cmd === "<") {
     turt.setSize(turt.getSize() - sizeInc);
   }
 
-  // Decrement Size
-  if (cmd === "+") {
+  // Increment Size
+  if (cmd === ">") {
     turt.setSize(turt.getSize() + sizeInc);
   }
   
-  // Change Color
+  // Change Color Towards Green
   if (cmd === "C") {
     turt.adjustColor(.1, .5, .2);
-  }
-
-  if (cmd == ";") {
-    throw("Emergency Halt");
   }
 }
