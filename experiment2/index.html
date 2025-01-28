@@ -2,7 +2,7 @@
 <html>
 <head>
 	<!-- This title is used for tabs and bookmarks -->
-	<title>Experiment 3</title>
+	<title>Shrimp Tank</title>
 
 	<!-- Use UTF character set, a good idea with any webpage -->
 	<meta charset="UTF-8" />
@@ -34,7 +34,7 @@
 	<main id="content">
 		<section>
 
-			<h1>Experiment 2 - Generative Methods</h1>
+			<h1>Personal Shrimp Tank</h1>
 
 			<div class="minor-section">
 				<div id="canvas-container">
@@ -47,17 +47,17 @@
 
 			<div class="minor-section">
 				<h2>Description</h2>
-				<p>What are you trying to acomplish with this experiment?</p>
+				<p>Controls:<br/>Click anywhere on the canvas to grow a plant. Press 1, 2, and 3 to select the type of plant you are planting. Press C to clear all plants.<br/>Customize this shrimp tank with plants grown by L-systems!</p>
 			</div>
 
 			<div class="minor-section">
 				<h2>Technical</h2>
-				<p>Describe in detail what you did technically and how it works?</p>
+				<p>Plants are grown using L-systems, the three different types of plants use their own rulesets. The shrimp on screen move according to delta time to continue moving at a steady pace even when there are a lot of plants on the screen. The sketch drops frames when there are a couple of plants planted, even though it is set up to not calculate the L system each frame. It drops frames because there is still a lot of data to redraw each frame.</p>
 			</div>
 
 			<div class="minor-section">
 				<h2>Reflection</h2>
-				<p>Each person that worked on the code should reflect on the process, the difficulties, and the successes of the experiment.</p>
+				<p>This experiment was pretty fun to do. I learned how L-systems work in better detail both through research and hand-on experimentation. I do want to think about ways to preserve the frame rate when there are many plants to draw, in case there is something I can do to optimize the drawing process.</p>
 			</div>
 
 		</section>
