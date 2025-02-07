@@ -1,30 +1,13 @@
-// sketch.js - purpose and description here
-// Author: Your Name
-// Date:
-
-// Here is how you might set up an OOP p5.js project
-// Note that p5.js looks for a file called sketch.js
-
-// Constants - User-servicable parts
-// In a longer project I like to put these in a separate file
-const VALUE1 = 1;
-const VALUE2 = 2;
+// sketch.js - Recursive Visual and Sound Generation
+// Author: Ashley Knapp
+// Date: 2-3-25
 
 // Globals
-let myInstance;
 let canvasContainer;
 var centerHorz, centerVert;
-
-class MyClass {
-    constructor(param1, param2) {
-        this.property1 = param1;
-        this.property2 = param2;
-    }
-
-    myMethod() {
-        // code to run when method is called
-    }
-}
+let tree;
+// Delta Time Variable
+let deTime;
 
 function resizeScreen() {
   centerHorz = canvasContainer.width() / 2; // Adjusted for drawing logic
@@ -42,38 +25,138 @@ function setup() {
   canvas.parent("canvas-container");
   // resize canvas is the page is resized
 
-  // create an instance of the class
-  myInstance = new MyClass("VALUE1", "VALUE2");
-
   $(window).resize(function() {
     resizeScreen();
   });
   resizeScreen();
+
+  // Set up delta time
+  deTime = new DeltaTime();
+  // lastFrame = performance.now(); // returned in milliseconds
+  // frameTime = 0;
+
+  stroke(0, 130, 164);
+  noFill();
+  tree = new Tree(centerHorz, centerVert, 200, 9);
+  // tree.drawTree();  // draws the next branch
+  deTime.setStopWatch();
 }
+
+let freqArr = [0, 100, 250, 375, 300, 375, 400, 450, 375];
+let typeArr = ["sine", "triangle", "triangle", "triangle", "triangle", "sine", "sine", "sine", "sine"];
+
+let freqI = 0;
+let oscArr = [];
+let oscI = 0;
+let mouseClicked = false;
 
 // draw() function is called repeatedly, it's the main animation loop
 function draw() {
-  background(220);    
-  // call a method on the instance
-  myInstance.myMethod();
+    // Delta Time Calculation
+    deTime.updateProgramTime();
 
-  // Set up rotation for the rectangle
-  push(); // Save the current drawing context
-  translate(centerHorz, centerVert); // Move the origin to the rectangle's center
-  rotate(frameCount / 100.0); // Rotate by frameCount to animate the rotation
-  fill(234, 31, 81);
-  noStroke();
-  rect(-125, -125, 250, 250); // Draw the rectangle centered on the new origin
-  pop(); // Restore the original drawing context
 
-  // The text is not affected by the translate and rotate
-  fill(255);
-  textStyle(BOLD);
-  textSize(140);
-  text("p5*", centerHorz - 105, centerVert + 40);
+  if (!mouseClicked) {
+    background(255);
+    text('Click to begin!', centerHorz, centerVert);
+  } else {
+
+    stroke(0, 130, 164, 100);
+    noFill();
+    
+    if (deTime.getStopWatch() > 1) {
+      tree.continueTree();
+      deTime.setStopWatch();
+    }
+
+  }
 }
 
-// mousePressed() function is called once after every time a mouse button is pressed
+// -------------------------------------------------
 function mousePressed() {
-    // code to run when mouse is pressed
+  if (!mouseClicked) {
+    mouseClicked = true;
+    background(255);
+  }
+}
+
+class DeltaTime {
+  constructor() {
+    this.frameTime;
+    this.dTime;
+    this.lastFrame = performance.now(); // returned in milliseconds
+    this.frameTime = 0;
+
+    this.stopWatchStart = 0;
+  }
+
+  updateProgramTime() {
+    const now = performance.now();
+    this.dTime = (now - this.lastFrame);
+    this.lastFrame = now;
+    
+    this.frameTime += this.dTime * 0.001; // set the elapsed time in seconds
+  }
+
+  getTime() {
+    return this.frameTime;
+  }
+
+  // Stop Watch Functions
+  setStopWatch() {
+    this.stopWatchStart = this.frameTime;
+  }
+
+  getStopWatch() {
+    return this.frameTime - this.stopWatchStart;
+  }
+}
+
+class Tree {
+  constructor(x, y, radius, level) {
+      this.x = x;
+      this.y = y;
+      this.radius = radius;
+      this.level = level;
+      this.currentLv = 0;
+  }
+
+  continueTree() {
+    if (this.currentLv < this.level) {
+      this.drawBranch(this.x, this.y, this.radius, this.currentLv);
+
+      // SOUNDS
+      let osc = new p5.Oscillator();
+      osc.setType(typeArr[freqI]);
+      osc.freq(freqArr[freqI]);
+      osc.start();
+      freqI++;
+      append(oscArr, osc);
+
+      // start turning off the oscillators after they are 4 iterations old
+      if (4 < this.currentLv && oscI < oscArr.length) {
+        oscArr[oscI].stop();
+        oscI++;
+      }
+
+    } else if (oscI < oscArr.length) {
+      oscArr[oscI].stop();
+      oscI++;
+    }
+
+    this.currentLv++;
+  }
+
+  drawBranch(x, y, radius, lv) {
+    strokeWeight(lv * 2);
+
+    arc(x, y, radius * 2, radius * 2, -(Math.PI), 0);
+    
+    if (lv > 0) {
+      // left branch
+      this.drawBranch(x - radius, y + radius / 2, radius / 2, lv - 1);
+      // right branch
+      this.drawBranch(x + radius, y + radius / 2, radius / 2, lv - 1);
+    }
+  }
 }

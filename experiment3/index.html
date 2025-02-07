@@ -2,7 +2,7 @@
 <html>
 <head>
 	<!-- This title is used for tabs and bookmarks -->
-	<title>Experiment X - Subject/Topic</title>
+	<title>Recursive Visual and Sound Generation</title>
 
 	<!-- Use UTF character set, a good idea with any webpage -->
 	<meta charset="UTF-8" />
@@ -19,6 +19,7 @@
         crossorigin="anonymous"></script>
 	<!-- Load p5.js library -->
 	<script src="https://cdn.jsdelivr.net/npm/p5@1.9.2/lib/p5.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0//addons/p5.sound.min.js"></script>
 
 	<!-- Link to javascript files - DEFER waits until all elements are rendered -->
     <script type="text/javascript" src="../js/site.js" DEFER></script>
@@ -32,7 +33,7 @@
 	<main id="content">
 		<section>
 
-			<h1>Experiment X - Subject/Topic</h1>
+			<h1>Experiment 3 - Recursive Visual and Sound Generation</h1>
 
 			<div class="minor-section">
 				<div id="canvas-container">
@@ -45,17 +46,17 @@
 
 			<div class="minor-section">
 				<h2>Description</h2>
-				<p>What are you trying to acomplish with this experiment?</p>
+				<p>I wanted to play around with generating sounds accompanying a recursive drawing being drawn in steps. Click to start. Refresh the page to restart.</p>
 			</div>
 
 			<div class="minor-section">
 				<h2>Technical</h2>
-				<p>Describe in detail what you did technically and how it works?</p>
+				<p>I took a simple recursive drawing and broke it down to draw in steps. At each step, it plays a predetermined sound from a p5.Oscillator.</p>
 			</div>
 
 			<div class="minor-section">
 				<h2>Reflection</h2>
-				<p>Each person that worked on the code should reflect on the process, the difficulties, and the successes of the experiment.</p>
+				<p>I would love to extend this project into playing dynamically generated sounds as an L-system is drawn, now that this simplified version shows that it can sound and look pretty neat.</p>
 			</div>
 
 		</section>
