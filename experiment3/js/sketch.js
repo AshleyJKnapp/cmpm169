@@ -1,7 +1,7 @@
 // sketch.js - Recursive Visual and Sound Generation
 // Author: Ashley Knapp
 // Date: 2-3-25
-
+ 
 // Globals
 let canvasContainer;
 var centerHorz, centerVert;
